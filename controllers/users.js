@@ -1,4 +1,5 @@
-const ValidationError = require('../errors/errors');
+const ValidationError = require('../errors/ValidationError');
+const DataNotFoundError = require('../errors/DataNotFoundError');
 
 const User = require('../models/user');
 
@@ -10,10 +11,17 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      if (!user) {
+        throw new DataNotFoundError('Переданы некорректные данные');
+      }
+      res.send({ data: user });
+    })
     .catch((err) => {
-      // как обработать Получение пользователя с несуществующим в БД id? в catch не попадает
-      console.log(err.name);
+      if (err.name === 'DataNotFoundError') {
+        res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        return;
+      }
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Запрашиваемый пользователь не найден' });
         return;
@@ -65,9 +73,8 @@ module.exports.updateProfile = (req, res) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      console.log(err);
-      if (err.name === 'ValidationError' || err.name === 'ValidationError') {
-        res.status(400).send({ message: err.message });
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
         return;
       }
       if (err.name === 'CastError') {
