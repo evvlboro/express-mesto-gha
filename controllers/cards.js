@@ -24,8 +24,18 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((user) => res.send({ data: user }))
+    .then((card) => {
+      if (!card) {
+        throw new DataNotFoundError('Запрашиваемая карточка не найдена');
+      } else {
+        res.send({ data: card });
+      }
+    })
     .catch((err) => {
+      if (err.name === 'DataNotFoundError') {
+        res.status(404).send({ message: 'Запрашиваемая карточка не найдена' });
+        return;
+      }
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Запрашиваемая карточка не найдена' });
         return;
