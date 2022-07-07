@@ -1,4 +1,5 @@
 const Card = require('../models/card');
+const DataNotFoundError = require('../errors/DataNotFoundError');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
@@ -39,8 +40,18 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        throw new DataNotFoundError('Запрашиваемая карточка не найдена');
+      } else {
+        res.send({ data: card });
+      }
+    })
     .catch((err) => {
+      if (err.name === 'DataNotFoundError') {
+        res.status(404).send({ message: 'Запрашиваемая карточка не найдена' });
+        return;
+      }
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Запрашиваемая карточка не найдена' });
         return;
@@ -55,8 +66,18 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-    .then((user) => res.send({ data: user }))
+    .then((card) => {
+      if (!card) {
+        throw new DataNotFoundError('Запрашиваемая карточка не найдена');
+      } else {
+        res.send({ data: card });
+      }
+    })
     .catch((err) => {
+      if (err.name === 'DataNotFoundError') {
+        res.status(404).send({ message: 'Запрашиваемая карточка не найдена' });
+        return;
+      }
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Запрашиваемая карточка не найдена' });
         return;

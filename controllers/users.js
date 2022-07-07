@@ -14,8 +14,9 @@ module.exports.getUserById = (req, res) => {
     .then((user) => {
       if (!user) {
         throw new DataNotFoundError('Переданы некорректные данные');
+      } else {
+        res.send({ data: user });
       }
-      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'DataNotFoundError') {
