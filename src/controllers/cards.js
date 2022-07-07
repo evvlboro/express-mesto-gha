@@ -26,7 +26,7 @@ module.exports.deleteCard = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Запрашиваемая карточка не найдена' });
+        res.status(400).send({ message: 'Запрашиваемая карточка не найдена' });
         return;
       }
       res.status(500).send({ message: 'Произошла ошибка' });
@@ -42,7 +42,7 @@ module.exports.likeCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Запрашиваемая карточка не найдена' });
+        res.status(400).send({ message: 'Запрашиваемая карточка не найдена' });
         return;
       }
       res.status(500).send({ message: 'Произошла ошибка' });
@@ -58,7 +58,7 @@ module.exports.dislikeCard = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Запрашиваемая карточка не найдена' });
+        res.status(400).send({ message: 'Запрашиваемая карточка не найдена' });
         return;
       }
       res.status(500).send({ message: 'Произошла ошибка' });
