@@ -1,10 +1,4 @@
-class ValidationError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'ValidationError';
-    this.statusCode = 400;
-  }
-}
+const ValidationError = require('../errors/errors');
 
 const User = require('../models/user');
 
@@ -55,15 +49,23 @@ module.exports.updateProfile = (req, res) => {
     },
   )
     .then((user) => {
-      if (!name || !about
-        || name.length < 2 || name.length > 30
-        || about.length < 2 || about.length > 30) {
+      if (!name && !about) {
         throw new ValidationError('Переданы некорректные данные');
+      }
+      if (name) {
+        if (name.length < 2 || name.length > 30) {
+          throw new ValidationError('Переданы некорректные данные');
+        }
+      }
+      if (about) {
+        if (about.length < 2 || about.length > 30) {
+          throw new ValidationError('Переданы некорректные данные');
+        }
       }
       res.send({ data: user });
     })
     .catch((err) => {
-      console.log(err.name);
+      console.log(err);
       if (err.name === 'ValidationError' || err.name === 'ValidationError') {
         res.status(400).send({ message: err.message });
         return;
