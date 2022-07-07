@@ -1,10 +1,14 @@
 const Card = require('../models/card');
 const DataNotFoundError = require('../errors/DataNotFoundError');
 
+const INCORRECT_DATA_ERROR_CODE = 400;
+const DATA_NOT_FOUND_ERROR_CODE = 404;
+const DEFAULT_ERROR_CODE = 500;
+
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.createCard = (req, res) => {
@@ -15,10 +19,10 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -33,14 +37,14 @@ module.exports.deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'DataNotFoundError') {
-        res.status(404).send({ message: 'Запрашиваемая карточка не найдена' });
+        res.status(DATA_NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемая карточка не найдена' });
         return;
       }
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Запрашиваемая карточка не найдена' });
+        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Запрашиваемая карточка не найдена' });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -59,14 +63,14 @@ module.exports.likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'DataNotFoundError') {
-        res.status(404).send({ message: 'Запрашиваемая карточка не найдена' });
+        res.status(DATA_NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемая карточка не найдена' });
         return;
       }
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Запрашиваемая карточка не найдена' });
+        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Запрашиваемая карточка не найдена' });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -85,13 +89,13 @@ module.exports.dislikeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'DataNotFoundError') {
-        res.status(404).send({ message: 'Запрашиваемая карточка не найдена' });
+        res.status(DATA_NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемая карточка не найдена' });
         return;
       }
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Запрашиваемая карточка не найдена' });
+        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Запрашиваемая карточка не найдена' });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };

@@ -3,10 +3,14 @@ const DataNotFoundError = require('../errors/DataNotFoundError');
 
 const User = require('../models/user');
 
+const INCORRECT_DATA_ERROR_CODE = 400;
+const DATA_NOT_FOUND_ERROR_CODE = 404;
+const DEFAULT_ERROR_CODE = 500;
+
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.getUserById = (req, res) => {
@@ -20,14 +24,14 @@ module.exports.getUserById = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'DataNotFoundError') {
-        res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        res.status(DATA_NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
         return;
       }
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Запрашиваемый пользователь не найден' });
+        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -38,10 +42,10 @@ module.exports.createUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -75,14 +79,14 @@ module.exports.updateProfile = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
         return;
       }
       if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        res.status(DATA_NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -101,9 +105,9 @@ module.exports.updateProfileAvatar = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        res.status(DATA_NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
