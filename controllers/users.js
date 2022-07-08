@@ -40,8 +40,14 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
+      console.log(err.errors.user);
       if (err.name === 'ValidationError') {
-        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: err.errors.name.message });
+        res.status(INCORRECT_DATA_ERROR_CODE).send({
+          // тут поле err.errors.user при создании пользователя с about < 2 = undefind,
+          // поэтому как ниже не выйдет
+          // message: err.errors.user.message
+          message: 'Ошибка при создании пользователя. Не соблюдено одно из условий при его создании.',
+        });
         return;
       }
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
@@ -60,19 +66,6 @@ module.exports.updateProfile = (req, res) => {
     },
   )
     .then((user) => {
-      // if (!name && !about) {
-      //   throw new ValidationError('Переданы некорректные данные');
-      // }
-      // if (name) {
-      //   if (name.length < 2 || name.length > 30) {
-      //     throw new ValidationError('Переданы некорректные данные');
-      //   }
-      // }
-      // if (about) {
-      //   if (about.length < 2 || about.length > 30) {
-      //     throw new ValidationError('Переданы некорректные данные');
-      //   }
-      // }
       res.send({ data: user });
     })
     .catch((err) => {

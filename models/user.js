@@ -3,19 +3,19 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
-    minlength: 2,
-    maxlength: 30,
+    minlength: [2, 'Мининимальная длинна поля name карточки 2 символа'],
+    maxlength: [30, 'Максимальная длинна поля name карточки 30 символа'],
+    required: [true, 'Поле name является обязательным'],
   },
   about: {
     type: String,
-    minlength: 2,
-    maxlength: 30,
-    required: true,
+    minlength: [2, 'Мининимальная длинна поля about карточки 2 символа'],
+    maxlength: [30, 'Максимальная длинна поля about карточки 30 символа'],
+    required: [true, 'Поле about является обязательным'],
   },
   avatar: {
     type: String,
-    required: true,
+    required: [true, 'Поле avatar является обязательным'],
   },
 });
 
