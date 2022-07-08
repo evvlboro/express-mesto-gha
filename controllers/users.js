@@ -1,4 +1,3 @@
-const ValidationError = require('../errors/ValidationError');
 const DataNotFoundError = require('../errors/DataNotFoundError');
 
 const User = require('../models/user');
@@ -42,7 +41,7 @@ module.exports.createUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
+        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: err.errors.name.message });
         return;
       }
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
@@ -58,23 +57,22 @@ module.exports.updateProfile = (req, res) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением
-      upsert: true, // если пользователь не найден, он будет создан
     },
   )
     .then((user) => {
-      if (!name && !about) {
-        throw new ValidationError('Переданы некорректные данные');
-      }
-      if (name) {
-        if (name.length < 2 || name.length > 30) {
-          throw new ValidationError('Переданы некорректные данные');
-        }
-      }
-      if (about) {
-        if (about.length < 2 || about.length > 30) {
-          throw new ValidationError('Переданы некорректные данные');
-        }
-      }
+      // if (!name && !about) {
+      //   throw new ValidationError('Переданы некорректные данные');
+      // }
+      // if (name) {
+      //   if (name.length < 2 || name.length > 30) {
+      //     throw new ValidationError('Переданы некорректные данные');
+      //   }
+      // }
+      // if (about) {
+      //   if (about.length < 2 || about.length > 30) {
+      //     throw new ValidationError('Переданы некорректные данные');
+      //   }
+      // }
       res.send({ data: user });
     })
     .catch((err) => {
@@ -99,7 +97,6 @@ module.exports.updateProfileAvatar = (req, res) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением
-      upsert: true, // если пользователь не найден, он будет создан
     },
   )
     .then((user) => res.send({ data: user }))

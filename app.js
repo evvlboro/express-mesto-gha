@@ -11,9 +11,6 @@ app.use(bodyParser.urlencoded({ extended: true })); // для приёма ве�
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
-  // Эти опции более недоступны и теперь они такие по умолчанию. Их спокойно убираем
-  // useCreateIndex: true,
-  // useFindAndModify: false,
 });
 
 app.use((req, res, next) => {
