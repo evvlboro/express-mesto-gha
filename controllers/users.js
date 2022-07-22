@@ -1,10 +1,12 @@
+const bcrypt = require('bcryptjs');
+const validator = require('validator');
 const DataNotFoundError = require('../errors/DataNotFoundError');
-
 const User = require('../models/user');
 
 const INCORRECT_DATA_ERROR_CODE = 400;
 const DATA_NOT_FOUND_ERROR_CODE = 404;
 const DEFAULT_ERROR_CODE = 500;
+const SALT_ROUNDS = 10;
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -35,23 +37,41 @@ module.exports.getUserById = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
-  User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      console.log(err.errors.user);
-      if (err.name === 'ValidationError') {
-        res.status(INCORRECT_DATA_ERROR_CODE).send({
-          // тут поле err.errors.user при создании пользователя с about < 2 = undefind,
-          // поэтому как ниже не выйдет
-          // message: err.errors.user.message
-          message: 'Ошибка при создании пользователя. Не соблюдено одно из условий при его создании.',
-        });
-        return;
+  if (!validator.isEmail(email)) {
+    res.status(400).send({ message: 'Неверный email' });
+  }
+
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        return res.status(409).send({ message: 'Пользователь с таким email уже существует.' });
       }
-      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
-    });
+
+      bcrypt.hash(password, SALT_ROUNDS)
+        .then(
+          (hash) => User.create({
+            name, about, avatar, email, password: hash,
+          })
+            .then(((newUser) => res.status(201).send(newUser)))
+            .catch((err) => {
+              if (err.name === 'ValidationError') {
+                res.status(INCORRECT_DATA_ERROR_CODE).send({
+                  // тут поле err.errors.user при создании пользователя с about < 2 = undefind,
+                  // поэтому как ниже не выйдет
+                  // message: err.errors.user.message
+                  message: 'Ошибка при создании пользователя. Не соблюдено одно из условий при его создании.',
+                });
+                return;
+              }
+              res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
+            }),
+        );
+    })
+    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.updateProfile = (req, res) => {
