@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -39,7 +40,7 @@ app.post(
       password: Joi.string().required().min(8),
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
-      avatar: Joi.string(),
+      avatar: Joi.string().regex(/^https?:\/\/(www\.)?[\w\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]*#?$/),
     }),
   }),
   createUser,

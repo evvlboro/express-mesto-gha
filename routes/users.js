@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 const router = require('express').Router();
 
 const { celebrate, Joi } = require('celebrate');
@@ -35,7 +36,7 @@ router.patch(
   '/users/me/avatar',
   celebrate({
     body: Joi.object().keys({
-      avatar: Joi.string(),
+      avatar: Joi.string().regex(/^https?:\/\/(www\.)?[\w\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]*#?$/),
     }),
   }),
   updateProfileAvatar,
