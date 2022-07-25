@@ -1,10 +1,12 @@
+/* eslint-disable consistent-return */
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const DataNotFoundError = require('../errors/DataNotFoundError');
+const ConflictError = require('../errors/ConflictError');
 const User = require('../models/user');
+const { getJwtToken } = require('../utils/jwt');
 
 const INCORRECT_DATA_ERROR_CODE = 400;
-const DATA_NOT_FOUND_ERROR_CODE = 404;
 const DEFAULT_ERROR_CODE = 500;
 const SALT_ROUNDS = 10;
 
@@ -14,7 +16,7 @@ module.exports.getUsers = (req, res) => {
     .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
@@ -23,20 +25,10 @@ module.exports.getUserById = (req, res) => {
         res.send({ data: user });
       }
     })
-    .catch((err) => {
-      if (err.name === 'DataNotFoundError') {
-        res.status(DATA_NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
-        return;
-      }
-      if (err.name === 'CastError') {
-        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
-        return;
-      }
-      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
-    });
+    .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -48,7 +40,7 @@ module.exports.createUser = (req, res) => {
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        return res.status(409).send({ message: 'Пользователь с таким email уже существует.' });
+        throw new ConflictError('Пользователь с таким email уже существует.');
       }
 
       bcrypt.hash(password, SALT_ROUNDS)
@@ -71,10 +63,10 @@ module.exports.createUser = (req, res) => {
             }),
         );
     })
-    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
+    .catch(next);
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
@@ -88,20 +80,10 @@ module.exports.updateProfile = (req, res) => {
     .then((user) => {
       res.send({ data: user });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
-        return;
-      }
-      if (err.name === 'CastError') {
-        res.status(DATA_NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
-        return;
-      }
-      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
-    });
+    .catch(next);
 };
 
-module.exports.updateProfileAvatar = (req, res) => {
+module.exports.updateProfileAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -113,11 +95,33 @@ module.exports.updateProfileAvatar = (req, res) => {
     },
   )
     .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(DATA_NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
-        return;
+    .catch(next);
+};
+
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  User.findOne({ email }).select('+password')
+    .then((user) => {
+      if (!user) {
+        return res.status(401).send({ message: 'Неправильный логин или пароль' });
       }
-      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
-    });
+
+      bcrypt.compare(password, user.password, (err, isValidPassword) => {
+        if (!isValidPassword) {
+          return res.status(401).send({ message: 'Неправильный логин или пароль' });
+        }
+
+        const token = getJwtToken(user._id);
+
+        return res.status(200).send({ token });
+      });
+    })
+    .catch(next);
+};
+
+module.exports.getMyUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => res.send({ data: user }))
+    .catch(next);
 };
