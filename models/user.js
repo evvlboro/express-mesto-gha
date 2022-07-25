@@ -11,7 +11,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     minlength: [2, 'Мининимальная длинна поля about карточки 2 символа'],
     maxlength: [30, 'Максимальная длинна поля about карточки 30 символа'],
-    required: [true, 'Поле about является обязательным'],
     default: 'Исследователь',
   },
   avatar: {

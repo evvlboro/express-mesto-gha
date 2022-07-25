@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { celebrate, Joi, errors } = require('celebrate');
 
 const INCORRECT_DATA_ERROR_CODE = 400;
 
@@ -20,17 +21,39 @@ const {
   createUser, login,
 } = require('./controllers/users');
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post(
+  '/signin',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(8),
+    }),
+  }),
+  login,
+);
+app.post(
+  '/signup',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(8),
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(30),
+      avatar: Joi.string(),
+    }),
+  }),
+  createUser,
+);
 
-// защита авторизаций тут
-app.use(require('./middlewares/auth'));
+app.use(require('./middlewares/auth')); // защита авторизации
 app.use(require('./routes/users'));
 app.use(require('./routes/cards'));
 
 app.use((req, res) => {
   res.status(404).send({ message: 'Неверный url' });
 });
+
+app.use(errors()); // обработчик ошибок celebrate
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
