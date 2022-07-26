@@ -4,8 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
-
-const INCORRECT_DATA_ERROR_CODE = 400;
+const DataNotFoundError = require('./errors/DataNotFoundError');
 
 const { PORT = 3000 } = process.env;
 
@@ -50,29 +49,13 @@ app.use(require('./middlewares/auth')); // защита авторизации
 app.use(require('./routes/users'));
 app.use(require('./routes/cards'));
 
-app.use((req, res) => {
-  res.status(404).send({ message: 'Неверный url' });
+app.use(() => {
+  throw new DataNotFoundError('Неверный url');
 });
 
 app.use(errors()); // обработчик ошибок celebrate
 
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  if (err.name === 'CastError') {
-    res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Запрашиваемый пользователь/карточка не найден/а' });
-    return;
-  }
-  if (err.name === 'ValidationError') {
-    res.status(INCORRECT_DATA_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
-    return;
-  }
-  res.status(statusCode).send({
-    message: statusCode === 500
-      ? 'На сервере произошла ошибка'
-      : message,
-  });
-  next();
-});
+app.use(require('./middlewares/globalErrorHandler'));
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

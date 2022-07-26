@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -16,6 +17,12 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    validate: {
+      validator(v) {
+        return /^https?:\/\/(www\.)?[\w\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]*#?$/.test(v);
+      },
+      message: (props) => `${props.value} is not a valid avatar link!`,
+    },
   },
   email: {
     type: String,
