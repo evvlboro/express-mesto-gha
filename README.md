@@ -1,18 +1,12 @@
-[![Tests](https://github.com/evvlboro/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-13-sprint.yml) [![Tests](https://github.com/evvlboro/express-mesto-gha/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
-# Проект Mesto фронтенд + бэкенд
+# Проект Mesto бэкенд
 
-
-
-## Настройка бейджей статуса тестов
-Перед началом работы над проектом рекомендуется исправить бейджи, отражающие статус прохождения тестов.
-Для этого замените разметку бейджей на следующий фрагмент, подставив вместо `${имя_пользователя}` и `${имя_репозитория}` соответствующие значения.
-
-```
-[![Tests for sprint 13](https://github.com/${имя_пользователя}/${имя репозитория}/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/${имя_пользователя}/${имя репозитория}/actions/workflows/tests-13-sprint.yml) 
-
-[![Tests for sprint 14](https://github.com/${имя_пользователя}/${имя репозитория}/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/${имя_пользователя}/${имя репозитория}/actions/workflows/tests-14-sprint.yml)
-```
-
+Этот проекст обладает следующим функионалом:
+* Возможность зарегестрироваться и залогиниться с помощью почты и пароля. Токен для авторизации храниться 7 дней.
+* У каждого пользователя есть поля name, about, avatar, email, password. Их можно задать при регистрации. Если не задать то установятся дефолтные. 
+* Поля name, about, avatar можно обновить после регистрации.
+* Можно создавать карточки. У каждой каточки есть есть поля name, link (ссылка на картинку), owner (id создателя карточки), createdAt (дата создания карточки) и массив likes (лайков карточки, которые могут савить пользователи).
+* Карточки можно создавать и удалять, а также лайкать.
+* Поля валидируются (например ссылки или email).
 
 ## Директории
 
