@@ -21,5 +21,10 @@
 `npm run start` — запускает сервер   
 `npm run dev` — запускает сервер с hot-reload
 
+## Использующиеся технологии:
+* Node.js
+* Express
+* MongoBD
+
 ## Ссылка на репозиторий
 https://github.com/evvlboro/express-mesto-gha
