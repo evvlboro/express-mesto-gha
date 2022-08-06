@@ -6,7 +6,7 @@ const { JWT_SECRET } = process.env;
 const getJwtToken = (id) => jwt.sign(
   { _id: id },
   JWT_SECRET,
-  { expiresIn: '7d' }, // токен будет просрочен через час после создания
+  { expiresIn: '7d' },
 );
 
 const isAuthoriset = (token) => jwt.verify(
